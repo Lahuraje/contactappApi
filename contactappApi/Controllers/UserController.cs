@@ -2,6 +2,7 @@
 using contactappApi.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace contactappApi.Controllers
 {
@@ -12,16 +13,16 @@ namespace contactappApi.Controllers
         private readonly IUserRepository _userRepository;
         public UserController(IUserRepository userRepository)
         {
-            _userRepository=userRepository;
+            _userRepository = userRepository;
         }
 
-        [HttpGet]
+        [HttpGet("GetUsers")]
         public ActionResult<IEnumerable<User>> GetUsers()
         {
             return Ok(_userRepository.GetAllUsers());
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("GetUserById")]
         public ActionResult<User> GetUser(int id)
         {
             var user = _userRepository.GetUserById(id);
@@ -32,14 +33,14 @@ namespace contactappApi.Controllers
             return Ok(user);
         }
 
-        [HttpPost]
+        [HttpPost("CreateUser")]
         public ActionResult<User> CreateUser([FromBody] User user)
         {
             _userRepository.AddUser(user);
             return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("UpdateUser")]
         public IActionResult UpdateUser(int id, [FromBody] User user)
         {
             var existingUser = _userRepository.GetUserById(id);
@@ -47,12 +48,12 @@ namespace contactappApi.Controllers
             {
                 return NotFound();
             }
-            user.Id = id;
+           
             _userRepository.UpdateUser(user);
-            return NoContent();
+            return Ok(new { id = id });
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteUser")]
         public IActionResult DeleteUser(int id)
         {
             var existingUser = _userRepository.GetUserById(id);
@@ -61,7 +62,7 @@ namespace contactappApi.Controllers
                 return NotFound();
             }
             _userRepository.DeleteUser(id);
-            return NoContent();
+            return Ok(new { id = id });
         }
     }
 }
